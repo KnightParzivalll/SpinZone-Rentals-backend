@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
-import { Feedback } from './entities/feedback.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateFeedbackDto } from './entities/feedback.dto';
 
 @ApiTags('feedback')
 @Controller('feedback')
@@ -19,7 +19,7 @@ export class FeedbackController {
   }
 
   @Post()
-  create(@Body() createFeedback: Feedback) {
+  create(@Body() createFeedback: CreateFeedbackDto) {
     return this.feedbackService.create(createFeedback);
   }
 

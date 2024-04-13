@@ -3,4 +3,5 @@ export class Feedback {
   first_name: string;
   last_name: string;
   text: string;
+  gender: string;
 }
