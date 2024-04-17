@@ -1,39 +1,100 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DatasourceService } from 'src/datasource/datasource.service';
 import { RentProduct } from './entities/rentProducts.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import {
+  CreateRentProductDto,
+  GetRentProductDto,
+} from './entities/rentProducts.dto';
 
 @Injectable()
 export class RentProductsService {
-  constructor(private readonly datasourceService: DatasourceService) {}
+  constructor(
+    @InjectRepository(RentProduct)
+    private readonly rentProductRepository: Repository<RentProduct>,
+  ) {}
 
-  create(rentProduct: RentProduct) {
-    this.datasourceService.getRentProducts().push(rentProduct);
-    return rentProduct;
+  prepare_prices(rentProducts: RentProduct[]) {
+    const rentProductsDto: GetRentProductDto[] = rentProducts.map(
+      (rentProduct) => ({
+        ...rentProduct,
+        prices: [
+          rentProduct.price_30min,
+          rentProduct.price_1h,
+          rentProduct.price_2h,
+        ],
+      }),
+    );
+
+    return rentProductsDto;
   }
 
-  findAll(): RentProduct[] {
-    return this.datasourceService.getRentProducts();
+  prepare_price(rentProduct: RentProduct) {
+    const rentProductsDto: GetRentProductDto = {
+      ...rentProduct,
+      prices: [
+        rentProduct.price_30min,
+        rentProduct.price_1h,
+        rentProduct.price_2h,
+      ],
+    };
+
+    return rentProductsDto;
   }
 
-  findOne(id: number) {
-    return this.datasourceService
-      .getRentProducts()
-      .find((rentProduct) => rentProduct.id === id);
+  async create(
+    rentProductDto: CreateRentProductDto,
+  ): Promise<GetRentProductDto> {
+    const rentProduct = this.rentProductRepository.create();
+
+    rentProduct.name = rentProductDto.name;
+    rentProduct.description = rentProductDto.description;
+    rentProduct.image = rentProductDto.image;
+    rentProduct.price_30min = rentProductDto.price_30min;
+    rentProduct.price_1h = rentProductDto.price_1h;
+    rentProduct.price_2h = rentProductDto.price_2h;
+
+    await this.rentProductRepository.save(rentProduct);
+
+    return this.prepare_price(rentProduct);
   }
 
-  update(id: number, updatedRentProducts: RentProduct) {
-    const index = this.datasourceService
-      .getRentProducts()
-      .findIndex((rentProduct) => rentProduct.id === id);
-    this.datasourceService.getRentProducts()[index] = updatedRentProducts;
-    return this.datasourceService.getRentProducts()[index];
+  async findAll(): Promise<GetRentProductDto[]> {
+    const rentProducts = await this.rentProductRepository.find();
+
+    return this.prepare_prices(rentProducts);
   }
 
-  remove(id: number) {
-    const index = this.datasourceService
-      .getRentProducts()
-      .findIndex((rentProduct) => rentProduct.id === id);
-    this.datasourceService.getRentProducts().splice(index, 1);
+  async findOne(id: number): Promise<GetRentProductDto> {
+    const rentProduct = await this.rentProductRepository.findOne({
+      where: { id },
+    });
+
+    return this.prepare_price(rentProduct);
+  }
+
+  async update(
+    id: number,
+    rentProductDto: CreateRentProductDto,
+  ): Promise<GetRentProductDto> {
+    const rentProduct = await this.rentProductRepository.findOne({
+      where: { id },
+    });
+
+    rentProduct.name = rentProductDto.name;
+    rentProduct.description = rentProductDto.description;
+    rentProduct.image = rentProductDto.image;
+    rentProduct.price_30min = rentProductDto.price_30min;
+    rentProduct.price_1h = rentProductDto.price_1h;
+    rentProduct.price_2h = rentProductDto.price_2h;
+
+    await this.rentProductRepository.save(rentProduct);
+
+    return this.prepare_price(rentProduct);
+  }
+
+  async remove(id: number) {
+    await this.rentProductRepository.delete({ id });
     return HttpStatus.OK;
   }
 }
