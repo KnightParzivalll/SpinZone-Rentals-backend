@@ -6,9 +6,12 @@ import {
   ApiResponse,
   ApiTags,
   ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { CreateFeedbackDto } from './entities/feedback.dto';
 import { Feedback } from './entities/feedback.entity';
+import { BadRequestResponse, OKResponse } from 'src/entities/global.entity';
 
 @ApiTags('feedback')
 @Controller('feedback')
@@ -17,12 +20,14 @@ export class FeedbackController {
 
   @Get()
   @ApiResponse({ status: 200, type: [Feedback] })
+  @ApiNoContentResponse({ description: 'No feedbacks found' })
   findAll() {
     return this.feedbackService.findAll();
   }
 
   @Get(':id')
   @ApiResponse({ status: 200, type: Feedback })
+  @ApiNoContentResponse({ description: 'No feedback found' })
   findOne(@Param('id') id: number) {
     return this.feedbackService.findOne(+id);
   }
@@ -35,7 +40,8 @@ export class FeedbackController {
   }
 
   @Delete(':id')
-  @ApiOkResponse()
+  @ApiOkResponse({ type: OKResponse })
+  @ApiBadRequestResponse({ type: BadRequestResponse })
   remove(@Param('id') id: number) {
     return this.feedbackService.remove(+id);
   }

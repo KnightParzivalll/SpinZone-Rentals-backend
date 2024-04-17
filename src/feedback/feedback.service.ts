@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Feedback, Gender } from './entities/feedback.entity';
 import { CreateFeedbackDto } from './entities/feedback.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,22 +20,43 @@ export class FeedbackService {
     feedback.gender = feedbackDto.gender as Gender;
 
     await this.feedbackRepository.save(feedback);
+
     return feedback;
   }
 
-  async findAll(): Promise<Feedback[]> {
+  async findAll(): Promise<Feedback[] | HttpStatus.NO_CONTENT> {
     const feedbacks = await this.feedbackRepository.find();
+
+    if (feedbacks.length === 0) {
+      throw new HttpException('', HttpStatus.NO_CONTENT);
+    }
+
     return feedbacks;
   }
 
-  async findOne(id: number): Promise<Feedback> {
-    return await this.feedbackRepository.findOne({
+  async findOne(id: number): Promise<Feedback | HttpStatus.NO_CONTENT> {
+    const feedback = await this.feedbackRepository.findOne({
       where: { id },
     });
+
+    if (!feedback) {
+      throw new HttpException('', HttpStatus.NO_CONTENT);
+    }
+
+    return feedback;
   }
 
-  async remove(id: number) {
-    await this.feedbackRepository.delete({ id });
-    return HttpStatus.OK;
+  async remove(id: number): Promise<HttpStatus.BAD_REQUEST | HttpStatus.OK> {
+    const feedback = await this.feedbackRepository.findOne({
+      where: { id },
+    });
+
+    if (!feedback) {
+      throw new HttpException('No feedback found', HttpStatus.BAD_REQUEST);
+    }
+
+    await this.feedbackRepository.remove(feedback);
+
+    throw new HttpException('Successfully deleted', HttpStatus.OK);
   }
 }
