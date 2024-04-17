@@ -29,7 +29,7 @@ export class RentController {
   }
 
   @Post()
-  @ApiResponse({ status: 200, type: Rent })
+  @ApiResponse({ status: 201, type: Rent })
   create(@Body() createRent: Rent) {
     return this.rentService.create(createRent);
   }

@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { RentController } from './rent.controller';
 import { RentService } from './rent.service';
-import { DatasourceModule } from 'src/datasource/datasource.module';
+import { Rent } from './entities/rent.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [DatasourceModule],
+  imports: [TypeOrmModule.forFeature([Rent])],
   controllers: [RentController],
   providers: [RentService],
 })

@@ -1,37 +1,53 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DatasourceService } from 'src/datasource/datasource.service';
 import { Rent } from './entities/rent.entity';
+import { CreateRentDto } from './entities/rent.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class RentService {
-  constructor(private readonly datasourceService: DatasourceService) {}
+  constructor(
+    @InjectRepository(Rent)
+    private readonly rentRepository: Repository<Rent>,
+  ) {}
 
-  create(rent: Rent) {
-    this.datasourceService.getRents().push(rent);
+  async create(rentDto: CreateRentDto): Promise<Rent> {
+    const rent = this.rentRepository.create();
+
+    rent.first_name = rentDto.first_name;
+    rent.last_name = rentDto.last_name;
+    rent.date = rentDto.date;
+    rent.time = rentDto.time;
+
+    await this.rentRepository.save(rent);
     return rent;
   }
 
-  findAll(): Rent[] {
-    return this.datasourceService.getRents();
+  async findAll(): Promise<Rent[]> {
+    const rents = await this.rentRepository.find();
+    return rents;
   }
 
-  findOne(id: number) {
-    return this.datasourceService.getRents().find((rent) => rent.id === id);
+  async findOne(id: number): Promise<Rent> {
+    return await this.rentRepository.findOne({
+      where: { id },
+    });
   }
 
-  update(id: number, updatedRent: Rent) {
-    const index = this.datasourceService
-      .getRents()
-      .findIndex((rent) => rent.id === id);
-    this.datasourceService.getRents()[index] = updatedRent;
-    return this.datasourceService.getRents()[index];
+  async update(id: number, rentDto: CreateRentDto): Promise<Rent> {
+    const rent = await this.rentRepository.findOne({ where: { id } });
+
+    rent.first_name = rentDto.first_name;
+    rent.last_name = rentDto.last_name;
+    rent.date = rentDto.date;
+    rent.time = rentDto.time;
+
+    await this.rentRepository.save(rent);
+    return rent;
   }
 
-  remove(id: number) {
-    const index = this.datasourceService
-      .getRents()
-      .findIndex((rent) => rent.id === id);
-    this.datasourceService.getRents().splice(index, 1);
+  async remove(id: number) {
+    await this.rentRepository.delete({ id });
     return HttpStatus.OK;
   }
 }

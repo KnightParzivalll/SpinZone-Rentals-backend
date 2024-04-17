@@ -1,40 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { IsString } from 'class-validator';
 
-@Entity('rent')
-export class Rent {
-  @ApiProperty({
-    description: `id`,
-    example: '1',
-  })
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class CreateRentDto {
   @ApiProperty({
     description: `First name of the user`,
     example: 'James',
   })
-  @Column({ length: 50 })
+  @IsString()
   first_name: string;
 
   @ApiProperty({
     description: `Last name of the user`,
     example: 'Roberts',
   })
-  @Column({ length: 50 })
+  @IsString()
   last_name: string;
 
   @ApiProperty({
     description: `Reserved date for rent`,
     example: '2024-06-23',
   })
-  @Column({ type: 'date' })
+  @IsString()
   date: string;
 
   @ApiProperty({
     description: `Reserved time for rent`,
     example: '16:12:00',
   })
-  @Column({ type: 'time' })
+  @IsString()
   time: string;
 }
