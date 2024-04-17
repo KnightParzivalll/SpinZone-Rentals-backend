@@ -3,6 +3,7 @@ import { Feedback, Gender } from './entities/feedback.entity';
 import { CreateFeedbackDto } from './entities/feedback.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { OKResponse, BadRequestResponse } from 'src/entities/global.entity';
 
 @Injectable()
 export class FeedbackService {
@@ -24,7 +25,7 @@ export class FeedbackService {
     return feedback;
   }
 
-  async findAll(): Promise<Feedback[] | HttpStatus.NO_CONTENT> {
+  async findAll(): Promise<Feedback[]> {
     const feedbacks = await this.feedbackRepository.find();
 
     if (feedbacks.length === 0) {
@@ -34,7 +35,7 @@ export class FeedbackService {
     return feedbacks;
   }
 
-  async findOne(id: number): Promise<Feedback | HttpStatus.NO_CONTENT> {
+  async findOne(id: number): Promise<Feedback> {
     const feedback = await this.feedbackRepository.findOne({
       where: { id },
     });
@@ -46,7 +47,7 @@ export class FeedbackService {
     return feedback;
   }
 
-  async remove(id: number): Promise<HttpStatus.BAD_REQUEST | HttpStatus.OK> {
+  async remove(id: number): Promise<BadRequestResponse | OKResponse> {
     const feedback = await this.feedbackRepository.findOne({
       where: { id },
     });
