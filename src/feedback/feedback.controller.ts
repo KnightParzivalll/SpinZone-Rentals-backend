@@ -1,6 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
-import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+  ApiCreatedResponse,
+} from '@nestjs/swagger';
 import { CreateFeedbackDto } from './entities/feedback.dto';
 import { Feedback } from './entities/feedback.entity';
 
@@ -22,7 +28,8 @@ export class FeedbackController {
   }
 
   @Post()
-  @ApiResponse({ status: 200, type: Feedback })
+  @ApiCreatedResponse({ type: Feedback })
+  @ApiBody({ type: CreateFeedbackDto })
   create(@Body() createFeedback: CreateFeedbackDto) {
     return this.feedbackService.create(createFeedback);
   }

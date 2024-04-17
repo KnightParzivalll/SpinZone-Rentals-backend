@@ -1,39 +1,41 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DatasourceService } from 'src/datasource/datasource.service';
-import { Feedback } from './entities/feedback.entity';
+import { Feedback, Gender } from './entities/feedback.entity';
 import { CreateFeedbackDto } from './entities/feedback.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class FeedbackService {
-  constructor(private readonly datasourceService: DatasourceService) {}
+  constructor(
+    @InjectRepository(Feedback)
+    private readonly feedbackRepository: Repository<Feedback>,
+  ) {}
 
-  create(feedback: CreateFeedbackDto) {
-    const feedbacks = this.datasourceService.getFeedbacks();
+  async create(feedbackDto: CreateFeedbackDto): Promise<Feedback> {
+    const feedback = this.feedbackRepository.create();
 
-    const newId =
-      feedbacks.length > 0 ? Math.max(...feedbacks.map((f) => f.id)) + 1 : 1;
+    feedback.first_name = feedbackDto.first_name;
+    feedback.last_name = feedbackDto.last_name;
+    feedback.text = feedbackDto.text;
+    feedback.gender = feedbackDto.gender as Gender;
 
-    const newFeedback = { id: newId, ...feedback }; // Создаем новый отзыв с автоинкрементным идентификатором
-    feedbacks.push(newFeedback);
-
-    return newFeedback;
+    await this.feedbackRepository.save(feedback);
+    return feedback;
   }
 
-  findAll(): Feedback[] {
-    return this.datasourceService.getFeedbacks();
+  async findAll(): Promise<Feedback[]> {
+    const feedbacks = await this.feedbackRepository.find();
+    return feedbacks;
   }
 
-  findOne(id: number) {
-    return this.datasourceService
-      .getFeedbacks()
-      .find((feedback) => feedback.id === id);
+  async findOne(id: number): Promise<Feedback> {
+    return await this.feedbackRepository.findOne({
+      where: { id },
+    });
   }
 
-  remove(id: number) {
-    const index = this.datasourceService
-      .getFeedbacks()
-      .findIndex((feedback) => feedback.id === id);
-    this.datasourceService.getFeedbacks().splice(index, 1);
+  async remove(id: number) {
+    await this.feedbackRepository.delete({ id });
     return HttpStatus.OK;
   }
 }

@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { FeedbackController } from './feedback.controller';
 import { FeedbackService } from './feedback.service';
-import { DatasourceModule } from 'src/datasource/datasource.module';
+import { Feedback } from './entities/feedback.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [DatasourceModule],
+  imports: [TypeOrmModule.forFeature([Feedback])],
   controllers: [FeedbackController],
   providers: [FeedbackService],
 })
