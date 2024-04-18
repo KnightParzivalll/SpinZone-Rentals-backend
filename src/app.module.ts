@@ -4,16 +4,9 @@ import { DatasourceModule } from './datasource/datasource.module';
 import { RentProductsModule } from './rentProducts/rentProducts.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { RentModule } from './rent/rent.module';
-import { ImagesModule } from './images/images.module';
 
 @Module({
-  imports: [
-    RentProductsModule,
-    FeedbackModule,
-    RentModule,
-    ImagesModule,
-    DatasourceModule,
-  ],
+  imports: [RentProductsModule, FeedbackModule, RentModule, DatasourceModule],
   controllers: [],
   providers: [
     {
