@@ -8,11 +8,20 @@ import {
   Put,
 } from '@nestjs/common';
 import { RentProductsService } from './rentProducts.service';
-import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   GetRentProductDto,
   CreateRentProductDto,
+  UpdateRentProductDto,
 } from './entities/rentProducts.dto';
+import { BadRequestResponse, OKResponse } from 'src/entities/global.entity';
 
 @ApiTags('rent_products')
 @Controller('rent_products')
@@ -21,21 +30,25 @@ export class RentProductsController {
 
   @Get()
   @ApiResponse({ status: 200, type: [GetRentProductDto] })
+  @ApiNoContentResponse({ description: 'No rent products found' })
   findAll() {
     return this.rentProductsService.findAll();
   }
 
   @Get(':id')
   @ApiResponse({ status: 200, type: GetRentProductDto })
+  @ApiNoContentResponse({ description: 'No rent product found' })
   findOne(@Param('id') id: number) {
     return this.rentProductsService.findOne(+id);
   }
 
   @Put(':id')
   @ApiResponse({ status: 201, type: GetRentProductDto })
+  @ApiBody({ type: UpdateRentProductDto })
+  @ApiNoContentResponse({ description: 'No rent product found' })
   update(
     @Param('id') id: number,
-    @Body() updatedRentProduct: CreateRentProductDto,
+    @Body() updatedRentProduct: UpdateRentProductDto,
   ) {
     return this.rentProductsService.update(+id, updatedRentProduct);
   }
@@ -47,7 +60,8 @@ export class RentProductsController {
   }
 
   @Delete(':id')
-  @ApiOkResponse()
+  @ApiOkResponse({ type: OKResponse })
+  @ApiBadRequestResponse({ type: BadRequestResponse })
   remove(@Param('id') id: number) {
     return this.rentProductsService.remove(+id);
   }

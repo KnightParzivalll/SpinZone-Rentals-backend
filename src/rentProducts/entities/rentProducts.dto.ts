@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class CreateRentProductDto {
   @ApiProperty({
@@ -24,25 +24,11 @@ export class CreateRentProductDto {
   image: string;
 
   @ApiProperty({
-    description: `Rent price for 30 minutes`,
-    example: 150,
+    description: `Array of rent prices (30min, 1h, 2h)`,
+    example: [150, 275, 500],
   })
-  @IsNumber()
-  price_30min: number;
-
-  @ApiProperty({
-    description: `Rent price for 1 hour`,
-    example: 275,
-  })
-  @IsNumber()
-  price_1h: number;
-
-  @ApiProperty({
-    description: `Rent price for 2 hours`,
-    example: 500,
-  })
-  @IsNumber()
-  price_2h: number;
+  @IsArray()
+  prices: number[];
 }
 
 export class GetRentProductDto {
@@ -74,6 +60,40 @@ export class GetRentProductDto {
     description: `Array of rent prices (30min, 1h, 2h)`,
     example: [150, 275, 500],
   })
+  @IsArray()
+  prices: number[];
+}
+
+export class UpdateRentProductDto {
+  @ApiPropertyOptional({
+    description: `Name of the item`,
+    example: 'Bike',
+  })
+  @IsOptional()
+  @IsString()
+  name: string;
+
+  @ApiPropertyOptional({
+    description: `Description of the item (for example age restriction)`,
+    example: '(only after 16)',
+  })
+  @IsOptional()
+  @IsString()
+  description: string;
+
+  @ApiPropertyOptional({
+    description: `Image name (file stores on server)`,
+    example: 'bike.png',
+  })
+  @IsOptional()
+  @IsString()
+  image: string;
+
+  @ApiPropertyOptional({
+    description: `Array of rent prices (30min, 1h, 2h)`,
+    example: [150, 275, 500],
+  })
+  @IsOptional()
   @IsArray()
   prices: number[];
 }
