@@ -6,43 +6,56 @@ import {
   ApiResponse,
   ApiTags,
   ApiCreatedResponse,
-  ApiNoContentResponse,
-  ApiBadRequestResponse,
 } from '@nestjs/swagger';
-import { CreateFeedbackDto } from './entities/feedback.dto';
-import { Feedback } from './entities/feedback.entity';
-import { BadRequestResponse, OKResponse } from 'src/entities/global.entity';
+import {
+  CreateFeedbackDto,
+  FeedbackByUserDto,
+  FeedbackDto,
+  FeedbackId,
+} from './dto/feedback.dto';
+import { NotFoundError } from 'src/common/decorator/error';
+import { OKResponse } from 'src/common/dto/error.dto';
+import { UserId } from 'src/user/dto/user.dto';
 
-@ApiTags('feedback')
-@Controller('feedback')
+@ApiTags('feedbacks')
+@Controller('feedbacks')
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Get()
-  @ApiResponse({ status: 200, type: [Feedback] })
-  @ApiNoContentResponse({ description: 'No feedbacks found' })
-  findAll() {
+  @ApiResponse({ status: 200, type: [FeedbackDto] })
+  findAll(): Promise<FeedbackDto[]> {
     return this.feedbackService.findAll();
   }
 
   @Get(':id')
-  @ApiResponse({ status: 200, type: Feedback })
-  @ApiNoContentResponse({ description: 'No feedback found' })
-  findOne(@Param('id') id: number) {
+  @ApiResponse({ status: 200, type: FeedbackDto })
+  @NotFoundError()
+  findOne(@Param('id') id: FeedbackId): Promise<FeedbackDto> {
     return this.feedbackService.findOne(+id);
   }
 
+  @Get('user/:userId')
+  @ApiResponse({ status: 200, type: [FeedbackByUserDto] })
+  @NotFoundError()
+  findFeedbacksByUserId(
+    @Param('userId') userId: UserId,
+  ): Promise<FeedbackByUserDto[]> {
+    return this.feedbackService.findFeedbacksByUserId(+userId);
+  }
+
   @Post()
-  @ApiCreatedResponse({ type: Feedback })
+  @ApiCreatedResponse({ type: FeedbackDto })
   @ApiBody({ type: CreateFeedbackDto })
-  create(@Body() createFeedback: CreateFeedbackDto) {
-    return this.feedbackService.create(createFeedback);
+  @NotFoundError()
+  create(@Body() createFeedbackDto: CreateFeedbackDto): Promise<FeedbackDto> {
+    return this.feedbackService.create(createFeedbackDto);
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: OKResponse })
-  @ApiBadRequestResponse({ type: BadRequestResponse })
-  remove(@Param('id') id: number) {
+  @NotFoundError()
+  remove(@Param('id') id: FeedbackId) {
     return this.feedbackService.remove(+id);
   }
 }

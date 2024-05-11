@@ -1,27 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { IsNumber, IsString } from 'class-validator';
+import { Rent } from 'src/rent/entity/rent.entity';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('rentProduct')
-export class RentProduct {
+@Entity('product')
+export class Product {
   @ApiProperty({
     description: `id`,
     example: '1',
   })
   @PrimaryGeneratedColumn()
+  @IsNumber()
   id: number;
 
   @ApiProperty({
-    description: `Name of the item`,
+    description: `Name of the product`,
     example: 'Bike',
   })
   @Column({ length: 50 })
+  @IsString()
   name: string;
 
   @ApiProperty({
-    description: `Description of the item (for example age restriction)`,
+    description: `Short description (for example age restriction)`,
     example: '(only after 16)',
   })
   @Column({ length: 50 })
+  @IsString()
   description: string;
 
   @ApiProperty({
@@ -29,26 +34,17 @@ export class RentProduct {
     example: 'bike.png',
   })
   @Column({})
+  @IsString()
   image: string;
 
   @ApiProperty({
-    description: `Rent price for 30 minutes`,
+    description: `Base rent price (for 30 min)`,
     example: 150,
   })
   @Column({ unsigned: true })
+  @IsNumber()
   price_30min: number;
 
-  @ApiProperty({
-    description: `Rent price for 1 hour`,
-    example: 275,
-  })
-  @Column({ unsigned: true })
-  price_1h: number;
-
-  @ApiProperty({
-    description: `Rent price for 2 hours`,
-    example: 500,
-  })
-  @Column({ unsigned: true })
-  price_2h: number;
+  @ManyToMany(() => Rent, (rent) => rent.products)
+  rents: Rent[];
 }

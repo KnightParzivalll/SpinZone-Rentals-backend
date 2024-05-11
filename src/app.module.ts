@@ -1,17 +1,19 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
-import { RentProductsModule } from './rentProducts/rentProducts.module';
+import { ProductsModule } from './products/products.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { RentModule } from './rent/rent.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    RentProductsModule,
+    ProductsModule,
     FeedbackModule,
     RentModule,
+    UserModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DATABASE_HOST,
