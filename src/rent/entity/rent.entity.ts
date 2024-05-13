@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsNumber, IsString } from 'class-validator';
+import { IsDateString, IsIn, IsNumber } from 'class-validator';
 import { Product } from 'src/products/entity/products.entity';
 import { User } from 'src/user/entity/user.entity';
 import {
@@ -31,19 +31,10 @@ export class Rent {
 
   @ApiProperty({
     description: `Reserved date for rent`,
-    example: '2024-06-23',
   })
-  @Column({ type: 'date' })
-  @IsString()
-  date: string;
-
-  @ApiProperty({
-    description: `Reserved time for rent`,
-    example: '16:12:00',
-  })
-  @Column({ type: 'time' })
-  @IsString()
-  time: string;
+  @Column({ type: 'datetime' })
+  @IsDateString()
+  date: Date;
 
   @ApiProperty({
     enum: durationValues,
@@ -64,10 +55,16 @@ export class Rent {
   @Column({ unsigned: true })
   total_price: number;
 
-  @ManyToMany(() => Product, (product) => product.rents)
+  @ManyToMany(() => Product, (product) => product.rents, {
+    nullable: false,
+  })
   @JoinTable()
   products: Product[];
 
-  @ManyToOne(() => User, (user) => user.rents)
+  @ManyToOne(() => User, (user) => user.rents, {
+    nullable: false,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   user: User;
 }

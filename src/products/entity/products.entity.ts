@@ -45,6 +45,9 @@ export class Product {
   @IsNumber()
   price_30min: number;
 
-  @ManyToMany(() => Rent, (rent) => rent.products)
+  @ManyToMany(() => Rent, (rent) => rent.products, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   rents: Rent[];
 }
